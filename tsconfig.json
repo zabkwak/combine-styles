@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "noImplicitAny": true,
+        "removeComments": true,
+        "preserveConstEnums": true,
+        "outDir": "./dist",
+        "rootDir": "./src",
+        "sourceMap": true,
+        "declaration": true,
+        "target": "es6",
+        "lib": [
+            "es5"
+        ]
+    },
+    "exclude": [
+        "./__tests__"
+    ]
+}
