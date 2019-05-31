@@ -12,7 +12,7 @@ npm install combine-styles-processor --save
 ```typescript
 import Processor from 'combine-styles-processor';
 
-const processor = new Processor([/* .. dirs to process */], outFile);
+const processor = new Processor([/* .. dirs or files to process */], outFile);
 
 await processor.process();
 

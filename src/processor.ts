@@ -12,28 +12,38 @@ const EXT_NAMES = ['.css', '.scss'];
 
 export default class Processor {
 
-    private _dirs: Array<string>;
+    private _sources: Array<string>;
     private _out: string;
     private _outDir: string;
     private _tmpDir: string;
-    private _processors: { [ext: string]: BaseExtensionProcessor } = {
-        css: new CSSProcessor(),
-        scss: new SassProcessor(),
-    };
+    private _processors: { [ext: string]: BaseExtensionProcessor } = {};
 
-    constructor(dirs: Array<string>, out: string) {
-        this._dirs = dirs;
+    constructor(sources: Array<string>, out: string) {
+        this._sources = sources;
         this._out = out;
         this._outDir = path.dirname(this._out);
         this._tmpDir = `${this._outDir}/cs-tmp`;
+        this
+            .registerExtensionProcessor('css', new CSSProcessor())
+            .registerExtensionProcessor('scss', new SassProcessor());
+    }
+
+    public registerExtensionProcessor(ext: string, processor: BaseExtensionProcessor): this {
+        this._processors[ext] = processor;
+        return this;
     }
 
     public async process(): Promise<void> {
         await this._createDir();
         // TODO clear the out file before processing
         const files: Array<string> = [];
-        await Promise.all(this._dirs.map(async (dir) => {
-            files.push(...await this._scanDir(dir, Object.keys(this._processors)));
+        await Promise.all(this._sources.map(async (source) => {
+            const stat = fs.statSync(source);
+            if (!stat.isDirectory()) {
+                files.push(source);
+                return;
+            }
+            files.push(...await this._scanDir(source, Object.keys(this._processors)));
         }));
         await this._processFiles(files);
         await this._merge();
