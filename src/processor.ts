@@ -22,7 +22,7 @@ export default class Processor {
         this._sources = sources;
         this._out = out;
         this._outDir = path.dirname(this._out);
-        this._tmpDir = `${this._outDir}/cs-tmp`;
+        this._tmpDir = `${this._outDir}/cs-tmp-${uniqid()}`;
         this
             .registerExtensionProcessor('css', new CSSProcessor())
             .registerExtensionProcessor('scss', new SassProcessor());
