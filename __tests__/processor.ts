@@ -18,6 +18,12 @@ describe('Processor', () => {
         expect(fs.existsSync(path.resolve(__dirname, './styles'))).to.be.true;
         // expect(fs.existsSync(path.resolve(__dirname, './styles/cs-tmp'))).to.be.true;
         const content = fs.readFileSync(path.resolve(__dirname, './styles/app.css')).toString();
-        expect(content).to.be.equal('#some-test{background-color:yellow}body{background-color:red}#test{background-color:yellow}#content{width:1300px;margin:0 auto}');
+        const styles = [
+            '#test{background-color:yellow}',
+            '#content{width:1300px;margin:0 auto}',
+            'body{background-color:red}',
+            '#some-test{background-color:yellow}',
+        ];
+        expect(content).to.be.equal(styles.join(''));
     });
 });

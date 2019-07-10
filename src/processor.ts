@@ -37,14 +37,15 @@ export default class Processor {
         await this._createDir();
         // TODO clear the out file before processing
         const files: Array<string> = [];
-        await Promise.all(this._sources.map(async (source) => {
+        for (let i = 0; i < this._sources.length; i++) {
+            const source = this._sources[i];
             const stat = fs.statSync(source);
             if (!stat.isDirectory()) {
                 files.push(source);
-                return;
+                break;
             }
             files.push(...await this._scanDir(source, Object.keys(this._processors)));
-        }));
+        }
         await this._processFiles(files);
         await this._merge();
         await this._cleanup();
@@ -54,22 +55,24 @@ export default class Processor {
         extNames = extNames.map(ext => ext.indexOf('.') === 0 ? ext : `.${ext}`);
         const out: Array<string> = [];
         const files = fs.readdirSync(dir);
-        await Promise.all(files.map(async (file) => {
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
             const p = `${dir}/${file}`;
             const stat = fs.statSync(p);
             if (stat.isDirectory()) {
                 out.push(...await this._scanDir(p, extNames));
-                return;
+                continue;
             }
             if (extNames.includes(path.extname(p))) {
                 out.push(p);
             }
-        }));
+        }
         return out;
     }
 
     private async _processFiles(files: Array<string>): Promise<void> {
-        await Promise.all(files.map(async (file) => {
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
             const ext = path.extname(file);
             const dest = `${this._tmpDir}/rs-tmp_${uniqid()}.css`;
             const processor = this._processors[ext.substr(1)];
@@ -77,7 +80,7 @@ export default class Processor {
                 throw new Error(`File extension ${ext} not supported.`);
             }
             await processor.process(file, dest);
-        }));
+        }
     }
 
     private async _merge(): Promise<void> {

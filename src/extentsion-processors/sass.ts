@@ -13,12 +13,13 @@ export default class Sass extends Base {
                     reject(err);
                     return;
                 }
+                const dir = path.dirname(src);
                 // TODO relative path to the node_modules
                 const data = buffer.toString().replace(/@import(.*)~/g, '@import$1./node_modules/');
                 sass.render({
                     data,
                     //file: src,
-                    //includePaths: ['./node_modules'],
+                    includePaths: [dir],
                 }, (err, result) => {
                     if (err) {
                         reject(err);
