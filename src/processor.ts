@@ -42,7 +42,7 @@ export default class Processor {
             const stat = fs.statSync(source);
             if (!stat.isDirectory()) {
                 files.push(source);
-                break;
+                continue;
             }
             files.push(...await this._scanDir(source, Object.keys(this._processors)));
         }
