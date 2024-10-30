@@ -1,8 +1,8 @@
 import { promises as fs } from 'fs';
+import { mkdirp } from 'mkdirp';
 import * as path from 'path';
-import * as mkdirp from 'mkdirp';
-import * as uniqid from 'uniqid';
 import * as uglifyCSS from 'uglifycss';
+import * as uniqid from 'uniqid';
 
 import BaseExtensionProcessor from './extentsion-processors/base';
 import CSSProcessor from './extentsion-processors/css';
@@ -11,7 +11,6 @@ import SassProcessor from './extentsion-processors/sass';
 const EXT_NAMES = ['.css', '.scss'];
 
 export default class Processor {
-
 	private _sources: Array<string>;
 	private _out: string;
 	private _outDir: string;
@@ -23,9 +22,10 @@ export default class Processor {
 		this._out = out;
 		this._outDir = path.dirname(this._out);
 		this._tmpDir = `${this._outDir}/cs-tmp-${uniqid()}`;
-		this
-			.registerExtensionProcessor('css', new CSSProcessor())
-			.registerExtensionProcessor('scss', new SassProcessor());
+		this.registerExtensionProcessor('css', new CSSProcessor()).registerExtensionProcessor(
+			'scss',
+			new SassProcessor(),
+		);
 	}
 
 	public registerExtensionProcessor(ext: string, processor: BaseExtensionProcessor): this {
@@ -44,7 +44,7 @@ export default class Processor {
 				files.push(source);
 				continue;
 			}
-			files.push(...await this._scanDir(source, Object.keys(this._processors)));
+			files.push(...(await this._scanDir(source, Object.keys(this._processors))));
 		}
 		await this._processFiles(files);
 		await this._merge();
@@ -52,7 +52,7 @@ export default class Processor {
 	}
 
 	private async _scanDir(dir: string, extNames: Array<string>): Promise<Array<string>> {
-		extNames = extNames.map(ext => ext.indexOf('.') === 0 ? ext : `.${ext}`);
+		extNames = extNames.map((ext) => (ext.indexOf('.') === 0 ? ext : `.${ext}`));
 		const out: Array<string> = [];
 		const files = await fs.readdir(dir);
 		for (let i = 0; i < files.length; i++) {
@@ -60,7 +60,7 @@ export default class Processor {
 			const p = `${dir}/${file}`;
 			const stat = await fs.stat(p);
 			if (stat.isDirectory()) {
-				out.push(...await this._scanDir(p, extNames));
+				out.push(...(await this._scanDir(p, extNames)));
 				continue;
 			}
 			if (extNames.includes(path.extname(p))) {
@@ -85,7 +85,7 @@ export default class Processor {
 
 	private async _merge(): Promise<void> {
 		const files = await fs.readdir(this._tmpDir);
-		const result = uglifyCSS.processFiles(files.map(file => `${this._tmpDir}/${file}`));
+		const result = uglifyCSS.processFiles(files.map((file) => `${this._tmpDir}/${file}`));
 		await fs.writeFile(this._out, result);
 	}
 
